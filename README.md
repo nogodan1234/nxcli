@@ -1,27 +1,27 @@
 # nxcli
 
-#  Script Name : nxcli
-#  Script Purpose or Overview
-#  - This program is python api client for Nutanix Prism Element(not Prism Central)
-#  - This program can collect overall cluster information and statstics info
-#  - This program relies on certain python packages and function in nxapilib.py
-#
-#  This file is developed by Taeho Choi(taeho.choi@nutanix.com) by referring below resources
-#  For reference look at:
-#  https://www.digitalformula.net/2018/api/vm-performance-stats-with-nutanix-rest-api/
-#  https://github.com/nelsonad77/acropolis-api-examples
-#  https://github.com/sandeep-car/perfmon/
-#
-#   Disclaimer
-#   This code is intended as a standalone example.
-#   Subject to licensing restrictions defined on nutanix.dev,
-#   this can be downloaded, copied and/or modified in any way you see fit.
-#   Please be aware that all public code samples provided by Nutanix are unofficial in nature,
-#   are provided as examples only, are unsupported and will need to be heavily scrutinized
-#   and potentially modified before they can be used in a production environment.
-#   All such code samples are provided on an as-is basis,and Nutanix expressly disclaims all warranties, express or implied.
-#   All code samples are © Nutanix, Inc., and are provided as-is under the MIT license.
-#   (https://opensource.org/licenses/MIT)
+*  Script Name : nxcli
+*  Script Purpose or Overview
+*  - This program is python api client for Nutanix Prism Element(not Prism Central)
+*  - This program can collect overall cluster information and statstics info
+*  - This program relies on certain python packages and function in nxapilib.py
+*
+*  This file is developed by Taeho Choi(taeho.choi@nutanix.com) by referring below resources
+*  For reference look at:
+*  https://www.digitalformula.net/2018/api/vm-performance-stats-with-nutanix-rest-api/
+*  https://github.com/nelsonad77/acropolis-api-examples
+*  https://github.com/sandeep-car/perfmon/
+*
+*   Disclaimer
+*   This code is intended as a standalone example.
+*   Subject to licensing restrictions defined on nutanix.dev,
+*   this can be downloaded, copied and/or modified in any way you see fit.
+*   Please be aware that all public code samples provided by Nutanix are unofficial in nature,
+*   are provided as examples only, are unsupported and will need to be heavily scrutinized
+*   and potentially modified before they can be used in a production environment.
+*   All such code samples are provided on an as-is basis,and Nutanix expressly disclaims all warranties, express or implied.
+*   All code samples are © Nutanix, Inc., and are provided as-is under the MIT license.
+*   (https://opensource.org/licenses/MIT)
 
 
         print("Type 1: Cluster info")
