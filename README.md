@@ -49,7 +49,7 @@
 
 6. All network list will be shown with their name,uuid, will get network detail if you provide uuid 
 
-7.Upload image from URL only for now - require container uuid to upload
+7. Upload image from URL only for now - require container uuid to upload
 
 8. You can create new VM from disk image from image service with cloud-init config file
    cloud-init file needs to be located in the same folder with nxcli file
