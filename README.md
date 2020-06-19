@@ -37,21 +37,6 @@
         print("Type 11: Collect performance data(cpu/mem) for VM or host")
         print("Type 12: Disk detail info")
 
-
-        print("Type 1: Cluster info")
-        print("Type 2: Host info")
-        print("Type 3: Vm info")
-        print("Type 4: Image info")
-        print("Type 5: Container info")
-        print("Type 6: Network info")
-        print("Type 7: Upload new image from URL")
-        print("Type 8: Create new VM from disk image with cloud-init")
-        print("Type 9: VM Power on/off operation")
-        print("Type 10: Delete VM operation")
-        print("Type 11: Collect performance data(cpu/mem) for VM or host")
-        print("Type 12: Disk detail info")
-
-
 1. You can get cluster detail such as ntp,dns,data service IP address
 
 2. You will see all hostnames  and their uuid first then if you provide uuid, will get host detail for the host
