@@ -24,18 +24,18 @@
 *   (https://opensource.org/licenses/MIT)
 
 
-        print("Type 1: Cluster info")
-        print("Type 2: Host info")
-        print("Type 3: Vm info")
-        print("Type 4: Image info")
-        print("Type 5: Container info")
-        print("Type 6: Network info")
-        print("Type 7: Upload new image from URL")
-        print("Type 8: Create new VM from disk image with cloud-init")
-        print("Type 9: VM Power on/off operation")
-        print("Type 10: Delete VM operation")
-        print("Type 11: Collect performance data(cpu/mem) for VM or host")
-        print("Type 12: Disk detail info")
+        ("Type 1: Cluster info")
+        ("Type 2: Host info")
+        ("Type 3: Vm info")
+        ("Type 4: Image info")
+        ("Type 5: Container info")
+        ("Type 6: Network info")
+        ("Type 7: Upload new image from URL")
+        ("Type 8: Create new VM from disk image with cloud-init")
+        ("Type 9: VM Power on/off operation")
+        ("Type 10: Delete VM operation")
+        ("Type 11: Collect performance data(cpu/mem) for VM or host")
+        ("Type 12: Disk detail info")
 
 1. You can get cluster detail such as ntp,dns,data service IP address
 
