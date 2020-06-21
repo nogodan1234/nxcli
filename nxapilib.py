@@ -1,11 +1,7 @@
-#Script Name : nxapilibpy
-#Script Purpose or Overview : This python file contains basic nutanix api method and class to connect Nutanix cluster via api
+#Script Name : nxapilibpy.py
+#Script Purpose or Overview : This python file contains basic nutanix api method to connect Nutanix Prism Element
 #This file is developed by Taeho Choi(taeho.choi@nutanix.com) by referring below resources
-# For reference look at:
-# https://www.digitalformula.net/2018/api/vm-performance-stats-with-nutanix-rest-api/
-# https://github.com/nelsonad77/acropolis-api-examples
-# https://github.com/sandeep-car/perfmon/
-
+#
 #   disclaimer
 #	This code is intended as a standalone example.  Subject to licensing restrictions defined on nutanix.dev, this can be downloaded, copied and/or modified in any way you see fit.
 #	Please be aware that all public code samples provided by Nutanix are unofficial in nature, are provided as examples only, are unsupported and will need to be heavily scrutinized and potentially modified before they can be used in a production environment.  
@@ -19,10 +15,10 @@ from urllib.parse import quote
 import urllib3
 import ipaddress
 import getpass
+import os.path
+from pathlib import Path
+import base64
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
-# Time period is one hour (3600 seconds).
-period=3600
 
 # ========== DO NOT CHANGE ANYTHING UNDER THIS LINE =====
 class my_api():
@@ -97,7 +93,7 @@ class my_api():
             cluster_url = self.base_urlv2 + "storage_containers/"+uuid
         elif (ent == 'net'):
             cluster_url = self.base_urlv2 + "networks/"+uuid
-        elif (ent == 'net2'):
+        elif (ent == 'subnet'):
             cluster_url = self.base_urlv2 + "networks/"+uuid+"/addresses"
         elif (ent == 'tasks'):
             cluster_url = self.base_urlv2 + "tasks/"+uuid
@@ -140,10 +136,39 @@ class my_api():
         return server_response.status_code ,json.loads(server_response.text)
 
 
-    # Post new image.
-    def post_new_img(self,body):
-        cluster_url = self.base_urlv08 + "images"
-        server_response = self.sessionv08.post(cluster_url,data = json.dumps(body))
+    # Post new ent.
+    def post_new_ent(self,ent,body):
+        if (ent == "image"):
+            cluster_url = self.base_urlv08 + "images"
+            server_response = self.sessionv08.post(cluster_url,data = json.dumps(body))
+
+        elif (ent == "eula"):
+            cluster_url = self.base_urlv1 + "eulas/accept"
+            server_response = self.sessionv1.post(cluster_url,data = json.dumps(body))
+
+        elif (ent == "pulse"):
+            cluster_url = self.base_urlv1 + "pulse"
+            server_response = self.sessionv1.put(cluster_url,data = json.dumps(body))
+
+        elif (ent == "pubkey"):
+            cluster_url = self.base_urlv2 + "cluster/public_keys"
+            server_response = self.sessionv2.post(cluster_url,data = json.dumps(body))
+        
+        elif (ent == "ntp"):
+            cluster_url = self.base_urlv2 + "cluster/ntp_servers"
+            server_response = self.sessionv2.post(cluster_url,data = json.dumps(body))
+        
+        elif (ent == "dns"):
+            cluster_url = self.base_urlv1 + "cluster/name_servers"
+            server_response = self.sessionv1.post(cluster_url,data = json.dumps(body))
+
+        elif (ent == "net"):
+            cluster_url = self.base_urlv08 + "networks"
+            server_response = self.sessionv08.post(cluster_url,data = json.dumps(body))
+        
+        else:
+            print("Wrong selection")
+        
         return server_response.status_code ,json.loads(server_response.text)
 
     # Create new VM with disk.
@@ -172,11 +197,110 @@ class my_api():
         server_response = self.sessionv2.post(cluster_url,data = json.dumps(body))
         return server_response.status_code ,json.loads(server_response.text)
 
+    # print all ent list with pretty format
+    def print_all_ent(self,ent):
+        if (ent == "hosts"):
+            # 1. Collect all current vm uuids
+            status, all_ent = self.get_all_entity_info("hosts")
+            # 2. Check the longest host name size to align print format
+            hostName=[]
+            for i in all_ent["entities"]:
+                hostName.append(i["name"])
+            maxfield = len(max(hostName,key=len))
+            # 3. Display all host name and uuid for user to select host by uuid
+            for n in all_ent["entities"]:
+        	    print("Host name: " + n["name"].ljust(maxfield)+" uuid: " + n["uuid"].rjust(30))
+            print("\n")
+            # 4. Creating valid UUid list and compare whether input is valid
+            hostUUid=[]
+            for i in all_ent["entities"]:
+                hostUUid.append(i["uuid"])
+            return status,hostUUid
+            
+        elif (ent == 'vms'):
+            # 1. Collect all current vm uuids 
+            status, all_ent = self.get_all_entity_info("vms")
+            # 2. Check the longest VM name size to align print format
+            vmName=[]
+            for i in all_ent["entities"]:
+                vmName.append(i["vmName"])
+            maxfield = len(max(vmName,key=len)) 
+            # 3. Display all vm name and uuid for user to select VM by uuid
+            for n in all_ent["entities"]:
+                print("VM name: " + n["vmName"].ljust(maxfield)+" uuid: " + n["uuid"].ljust(40)+ "power:"+n["powerState"])
+            # 4. Creating valid UUid list and compare whether input is valid
+            vmUUid=[]
+            for i in all_ent["entities"]:
+                vmUUid.append(i["uuid"])
+            return status,vmUUid
+
+        elif (ent == 'images'):
+            # 1. Get the UUID of all imgs.
+            status, all_ent = self.get_all_entity_info("images")
+
+            # 2. Check the longest img name size to align print format
+            imgName=[]
+            for i in all_ent["entities"]:
+                imgName.append(i["name"])
+            maxfield = len(max(imgName,key=len))
+
+            # 3. Display all img name, uuid, img_type: ISO or disk
+            for n in all_ent["entities"]:
+                print("Image name: " + n["name"].ljust(maxfield)+" uuid: " + n["uuid"] +" vm_disk_id: " + str(n.get("vm_disk_id")) + "  image_type: "+ str(n.get("image_type")))
+            print("\n")
+            # 4. Creating valid UUid list and compare whether input is valid
+            imgUUid=[]
+            for i in all_ent["entities"]:
+                imgUUid.append(i["uuid"])
+            return status,imgUUid
+          
+        elif (ent == 'ctr'):
+            # 1. Get the UUID of container 
+            status, all_ent = self.get_all_entity_info("ctr")
+            # 2. Check the longest ctr name size to align print format
+            ctrName=[]
+            for i in all_ent["entities"]:
+                ctrName.append(i["name"])
+            maxfield = len(max(ctrName,key=len))
+            # 3. Display all ctr name, uuid, img_type: ISO or disk
+            for n in all_ent["entities"]:
+                print("Container name: " + n["name"].ljust(maxfield)+" storage_container_uuid: " + n["storage_container_uuid"].ljust(40))
+            print("\n")
+            # 4. Creating valid UUid list and compare whether input is valid
+            ctrUUid=[]
+            for i in all_ent["entities"]:
+                ctrUUid.append(i["storage_container_uuid"])
+            return status,ctrUUid
+            
+        elif (ent == 'net'):
+            # 1. Get the UUID of network 
+            status, all_ent = self.get_all_entity_info("net")
+
+            # 2. Check the longest ctr name size to align print format
+            netName=[]
+            for i in all_ent["entities"]:
+                netName.append(i["name"])
+            maxfield = len(max(netName,key=len))
+
+            # 3. Display all ctr name, uuid, img_type: ISO or disk
+            for n in all_ent["entities"]:
+                print("Network name: " + n["name"].ljust(maxfield)+" network uuid: " + n["uuid"] + "  vlan: "+ str(n["vlan_id"]).ljust(6)+"  dhcp option:" + str(n["ip_config"]["dhcp_options"]))
+            print("\n")
+            # 4. Creating valid UUid list and compare whether input is valid
+            netUUid=[]
+            for i in all_ent["entities"]:
+                netUUid.append(i["uuid"])
+            return status,netUUid
+    
+        else: 
+            print("wrong entiry parsed")
+
     def EntityMenu(self):
         print("\n\n")
         print("###############################################")
         print("What kind of operation do you want?")
         print("#################### MENU #################### ")
+        print("Type 0: Check specific task status")
         print("Type 1: Cluster info")
         print("Type 2: Host info")
         print("Type 3: Vm info")
@@ -184,39 +308,66 @@ class my_api():
         print("Type 5: Container info")
         print("Type 6: Network info")
         print("Type 7: Upload new image from URL")
-        print("Type 8: Create new VM from disk image with cloud-init")
-        print("Type 9: VM Power on/off operation")
+        print("Type 8: Create new VM from disk image with cloud-init(bulk opt)")
+        print("Type 9: VM Power on/off operation(bulk opt)")
         print("Type 10: Delete VM operation")
-        print("Type 11: Collect performance data(cpu/mem) for VM or host")
-        print("Type 12: Disk detail info")
+        print("Type 11: Performance data(cpu/mem) for VM or host")
+        print("Type 12: Cluster disk detail info")
+        print("Type 13: New cluster setup - EULA,Pulse,NTP etc")
         print("\n")
         seLection = input()
         return seLection
-    
-# ========== DO NOT CHANGE ANYTHING ABOVE THIS LINE =====
 
-def GetClusterDetail():
-    if len(sys.argv) >= int(4):
-        # Get Prism VIP username password from command line 
-        ip = sys.argv[1]
-        username = sys.argv[2]
-        password = sys.argv[3]
-    else:
-        print("###############################################")
-        print("You can also use '%s Prism_VIP username password' without interaction" %sys.argv[0])
-        print("What's Prism VIP address? ")
-        ip = input()
-        if ipaddress.ip_address(ip):
-            print ("You typed right ip format")
+    def GetUUid(self):
+        uuid = input("\n\nEnter entity uuid(ex.vm,host,image...) to see the detail: \n")
+        if uuid == "":
+            print("You pressed enter")
+            return str(1)
         else:
-            print ("You typed wrong ip format")
-            print ("Existing")   
-        print("What is the Prism UI User which has admin role? ex)admin")
-        username = input()
-        password = getpass.getpass(prompt="What is the password for the Prism UI User?\n" , stream=None)
-    return(ip,username,password)
+            print("You typed uuid: %s" %uuid)
+            return uuid
+ 
+# ========== DO NOT CHANGE ANYTHING ABOVE THIS LINE =====
+    
+def GetClusterDetail():
+    #Get current user home directory
+    home = str(Path.home())
+    # .nx for configuration folder
+    path = home+"/.nx"
+    #Cluster config file in json format
+    cluster_config = home+"/.nx/config"
+        
+    if os.path.exists(cluster_config) == False:
+        print("\n\nNo cluster config file found, will create new config file now\n\n")
+        try:
+            os.mkdir(path)
+        except OSError:
+            print("%s directory creation failed" %path)
+        else:
+            print("%s directory creation is suceeded" %path)
 
-def GetUUid():
-    print("What's the entity(ex.vm,host,image...) uuid to check the detail?")
-    uuid = input()
-    return(uuid)
+        config={}
+        config["cluster_name"]      =       input("What is cluster name?: ")    
+        config["ip"]                =       input("Prism Element Virtual IP: ")
+        config["username"]          =       input("Prism admin username: ")
+        raw_passwd                  =       getpass.getpass(prompt="Password for admin user?\n" , stream=None)
+        #Encoding passwd 
+        bpasswd                     =       base64.b64encode(raw_passwd.encode("utf-8"))
+        #Convert byte format to string to send json
+        config["password"]          =       bpasswd.decode("utf-8")
+        with open(cluster_config,'w') as out_file:
+            json.dump(config,out_file)
+        print("\n %s config file has been created !!\n" %config["cluster_name"])
+        return(config["cluster_name"],config["ip"],config["username"],config["password"])
+
+    else :
+        print("Reading your config...")
+        with open(cluster_config) as in_file:
+            config = json.load(in_file)
+            ip = config["ip"]
+            username = config["username"]
+            enc_passwd = config["password"]
+            password = base64.b64decode(enc_passwd).decode("utf-8")
+            cluster_name = config["cluster_name"]
+        print("\n\nFound {} cluster config file in {}\n\n".format(cluster_name,cluster_config))
+        return (cluster_name,ip,username,password)

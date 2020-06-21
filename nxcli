@@ -4,11 +4,12 @@ motd = f"""
 {'#'*80}
 #  Script Name : nxcli
 #  Script Purpose or Overview 
-#  - This program is python api client for Nutanix Prism Element(not Prism Central)
-#  - This program can collect overall cluster information and statstics info
-#  - This program relies on certain python packages and function in nxapilib.py
-#  - This program can utilise provision/delete entities - ex)vm, image
-#  This file is developed by Taeho Choi(taeho.choi@nutanix.com) by referring below resources
+#  - Ultamate goal of this program is to use nutanix cluster without UI operation via API
+#  - This program is developed with python3 
+#  - This program can be used for collecting/provisiong/deleting/configure nutanix cluster entity
+#  - This program requires nxapilib.py
+#
+#  This program is developed by Taeho Choi(taeho.choi@nutanix.com) by referring below resources
 #  For reference look at:
 #  https://www.digitalformula.net/2018/api/vm-performance-stats-with-nutanix-rest-api/
 #  https://github.com/nelsonad77/acropolis-api-examples
@@ -41,138 +42,100 @@ import pyperclip as pc
 if __name__ == "__main__":
     print(motd)
     cluster = C.GetClusterDetail()
-    while True:    
-        ip = cluster[0]
-        username = cluster[1]
-        password = cluster[2]  
+    while True:
+        cluster_name = cluster[0]    
+        ip = cluster[1]
+        username = cluster[2]
+        password = cluster[3]  
 
         mycluster = C.my_api(ip,username,password)
         seLection = mycluster.EntityMenu()
 
-        if seLection == str(1):
+        if seLection == str(0):
+            print("You've selected task progress detail....\n")
+            # 1. Call cluster detail from get_cluster_information() method with api v1
+            task_uuid=mycluster.GetUUid()
+            status, task = mycluster.get_single_ent_info("tasks",task_uuid)
+            print("Here is the task detail... \n")
+            # 2. pprint cluter detail json format
+            pprint.pprint(task)
+
+        elif seLection == str(1):
             print("You've selected cluster detail....\n")
             # 1. Call cluster detail from get_cluster_information() method with api v1
             status, all_cluster = mycluster.get_all_entity_info("cluster")
-            print("Here is the cluster detail... \n")
+            print("Here is the cluster detail... \n\n")
             # 2. pprint cluter detail json format
             pprint.pprint(all_cluster)
 
         elif seLection == str(2):
-            # 1. Get the UUID of all hosts.
             print("You've selected host detail....\n")
-            status, all_hosts = mycluster.get_all_entity_info("hosts")
+            # 1. print all host list and get valid host uuid in list
+            status, all_hosts = mycluster.print_all_ent("hosts")
 
-            # 2. Check the longest host name size to align print format
-            hostName=[]
-            for i in all_hosts["entities"]:
-                hostName.append(i["name"])
-            maxfield = len(max(hostName,key=len))
-
-            # 3. Display all host name and uuid for user to select host by uuid
-            for n in all_hosts["entities"]:
-        	    print("Host name: " + n["name"].ljust(maxfield)+" uuid: " + n["uuid"].rjust(30))
-            print("\n")
-            # 4. Get VM UUID for specific host from standard input
-            host_uuid=C.GetUUid()
+            # 2. Get VM UUID for specific host from standard input
+            host_uuid=mycluster.GetUUid()
             
-            # 5. Display host detail for the uuid
+            # 3. Display host detail for the uuid
             status, host_info = mycluster.get_single_ent_info("hosts",host_uuid)
+            print("Here is the host detail... \n\n")
             pprint.pprint(host_info)
 
         elif seLection == str(3):
             print("You've selected VM detail....\n")
-            # 1. Get the UUID of all VMs.
-            status, all_vms = mycluster.get_all_entity_info("vms")
+            # 1. print all host list and get valid host uuid in list
+            status, all_vms = mycluster.print_all_ent("vms")
 
-            # 2. Check the longest VM name size to align print format
-            vmName=[]
-            for i in all_vms["entities"]:
-                vmName.append(i["vmName"])
-            maxfield = len(max(vmName,key=len))
+            # 2. Get VM UUID for specific VM from standard input
+            vm_uuid = mycluster.GetUUid()
 
-            # 3. Display all vm name and uuid for user to select VM by uuid
-            for n in all_vms["entities"]:
-                print("VM name: " + n["vmName"].ljust(maxfield)+" uuid: " + n["uuid"].ljust(40)+ "power:"+n["powerState"])
-            print("\n")
-            # 4. Get VM UUID for specific VM from standard input
-            vm_uuid = C.GetUUid()
-
-            # 5. Display host detail for the uuid
+            # 3. Display vm detail for the uuid
             status, vm_info = mycluster.get_single_ent_info("vms",vm_uuid)
+            print("Here is the vm detail... \n\n")
             pprint.pprint(vm_info)
 
         elif seLection == str(4):
             print("You've selected Image detail....\n")
-            # 1. Get the UUID of all imgs.
-            status, all_imgs = mycluster.get_all_entity_info("images")
-
-            # 2. Check the longest img name size to align print format
-            imgName=[]
-            for i in all_imgs["entities"]:
-                imgName.append(i["name"])
-            maxfield = len(max(imgName,key=len))
-
-            # 3. Display all img name, uuid, img_type: ISO or disk
-            for n in all_imgs["entities"]:
-                print("Image name: " + n["name"].ljust(maxfield)+" uuid: " + n["uuid"] +" vm_disk_id: " + str(n.get("vm_disk_id")) + "  image_type: "+ str(n.get("image_type")))
-            print("\n")
+            # 1. print all img list and get valid img uuid in list
+            status, all_vms = mycluster.print_all_ent("images")
+          
+            # 2. Get image uuid from the list
+            img_uuid=mycluster.GetUUid()
             
-            # 4. Get image uuid from the list
-            img_uuid=C.GetUUid()
-            
-            # 5. Display host detail for the uuid
+            # 3. Display image detail for the uuid
             status, ent_info = mycluster.get_single_ent_info("images",img_uuid)
+            print("Here is the image detail... \n\n")
             pprint.pprint(ent_info)
 
         elif seLection == str(5):
             print("You've selected container info detail....\n")
-            # 1. Get the UUID of container 
-            status, all_ctrs = mycluster.get_all_entity_info("ctr")
+            # 1. print all img list and get valid img uuid in list
+            status, all_ctrs = mycluster.print_all_ent("ctr")
 
-            # 2. Check the longest ctr name size to align print format
-            ctrName=[]
-            for i in all_ctrs["entities"]:
-                ctrName.append(i["name"])
-            maxfield = len(max(ctrName,key=len))
-
-            # 3. Display all ctr name, uuid, img_type: ISO or disk
-            for n in all_ctrs["entities"]:
-                print("Container name: " + n["name"].ljust(maxfield)+" storage_container_uuid: " + n["storage_container_uuid"].ljust(40))
-            print("\n")
+            # 2. Get ctr UUID 
+            ctr_uuid=mycluster.GetUUid()
             
-            # 4. Get ctr UUID 
-            ctr_uuid=C.GetUUid()
-            
-            # 5. Display host detail for the uuid
+            # 3. Display container detail for the uuid
             status, ent_info = mycluster.get_single_ent_info("ctr",ctr_uuid)
+            print("Here is the container detail... \n\n")
             pprint.pprint(ent_info)
 
         elif seLection == str(6):
             print("You've selected network info detail....\n")
-            # 1. Get the UUID of network 
-            status, all_nets = mycluster.get_all_entity_info("net")
+            # 1. print all img list and get valid img uuid in list
+            status, all_nets = mycluster.print_all_ent("net")
 
-            # 2. Check the longest ctr name size to align print format
-            netName=[]
-            for i in all_nets["entities"]:
-                netName.append(i["name"])
-            maxfield = len(max(netName,key=len))
-
-            # 3. Display all ctr name, uuid, img_type: ISO or disk
-            for n in all_nets["entities"]:
-                print("Network name: " + n["name"].ljust(maxfield)+" network uuid: " + n["uuid"] + "  vlan: "+ str(n["vlan_id"]).ljust(6)+"  dhcp option:" + str(n["ip_config"]["dhcp_options"]))
-            print("\n")
-
-            # 4. Get image uuid from the list
-            net_uuid=C.GetUUid()
+            # 2. Get image uuid from the list
+            net_uuid=mycluster.GetUUid()
             
-            # 5. Display host detail for the uuid
+            # 3. Display net detail for the uuid
             status, ent_info = mycluster.get_single_ent_info("net",net_uuid)
+            print("Here is the network detail... \n\n")
             pprint.pprint(ent_info) 
 
             print("\nBelow is detail ip usage if it is managed network\n")
-            #6. Display subnet usage detail for the uuid
-            status, ent_info = mycluster.get_single_ent_info("net2",net_uuid)
+            #4. Display subnet usage detail for the uuid
+            status, ent_info = mycluster.get_single_ent_info("subnet",net_uuid)
             pprint.pprint(ent_info) 
 
         elif seLection == str(7):
@@ -190,7 +153,7 @@ if __name__ == "__main__":
             url         = input("Enter URL where the image is located: ")
             body = {"name":name,"annotation":annotation,"imageType":valid_image,"imageImportSpec":{"containerUuid":ctrUuid,"url":url}}
             #body = {"name":"cirros_disk2","annotation":"cirros","imageType":"DISK_IMAGE","imageImportSpec":{"containerUuid":"f8943a0e-83de-41c7-9627-08d2b25c72fb","url":"https://download.cirros-cloud.net/0.5.1/cirros-0.5.1-x86_64-disk.img"}}
-            status,task_uuid = mycluster.post_new_img(body)
+            status,task_uuid = mycluster.post_new_ent("image",body)
             print ("\n\nServer Response code is: {} and task uuid is {}".format(status,task_uuid["taskUuid"]))
             print("\n")
             status, ent_info = mycluster.get_single_ent_info("tasks",task_uuid["taskUuid"])
@@ -199,88 +162,113 @@ if __name__ == "__main__":
 
         elif seLection == str(8):
             print("You've selected to create new VM with cloud-init..\n")
-            print("This task will create ONLY from disk image in image list\n")
+            print("This task support to create VM from disk image in image list\n")
+            #Get no of VM to create
+            num_vm                                                              = int(input("How many VMs you want to deplpy?: "))
             #body dictionary init
-            body={"name":str,"memory_mb":int,"num_vcpus":int,"description":str,"num_cores_per_vcpu":int,"timezone":str,"boot":{"uefi_boot":False,"boot_device_order":["CDROM","DISK","NIC"]},"vm_disks":[{"is_cdrom":False,"disk_address":{"device_bus":"scsi"},"vm_disk_clone":{"disk_address":{"vmdisk_uuid":str},"minimum_size":int}}],"vm_nics":[{"network_uuid":str,"is_connected":True}],"hypervisor_type":"ACROPOLIS","vm_customization_config":{"userdata":str,"files_to_inject_list":[]},"vm_features":{"AGENT_VM":False}}
-            
-            body["name"]                                                        = input("Enter VM name: ")
+            body={"name":str,"memory_mb":int,"num_vcpus":int,"description":str,"num_cores_per_vcpu":int,"timezone":str,"boot":{"uefi_boot":False,"boot_device_order":["CDROM","DISK","NIC"]},"vm_disks":[{"is_cdrom":False,"disk_address":{"device_bus":"scsi"},"vm_disk_clone":{"disk_address":{"vmdisk_uuid":str},"minimum_size":int}}],"vm_nics":[{"network_uuid":str,"is_connected":True}],"hypervisor_type":"ACROPOLIS","vm_customization_config":{"userdata":str,"files_to_inject_list":[]},"vm_features":{"AGENT_VM":False}}           
+            vm_name                                                             = input("Enter VM name: ")
             body["num_vcpus"]                                                   = int(input("Enter num of vcpus: "))
             body["num_cores_per_vcpu"]                                          = int(input("Enter num of vcpu per sockets: "))
             body["memory_mb"]                                                   = 1024*int(input("Enter VM memory size(GB): "))
-            body["description"]                                                 = input("Enter VM description: ")
+            vm_description                                                      = input("Enter VM description: ")
             body["timezone"]                                                    = input("Enter timezone ex) UTC: ")
             body["vm_nics"][0]["network_uuid"]                                  = input("Enter network uuid: ")
-            body["vm_disks"][0]["vm_disk_clone"]["disk_address"]["vmdisk_uuid"] = input("Enter vmdisk_id for disk image: ")
+            body["vm_disks"][0]["vm_disk_clone"]["disk_address"]["vmdisk_uuid"] = input("Enter VMDISK_ID for disk image: ")
             body["vm_disks"][0]["vm_disk_clone"]["minimum_size"]                = 1024*1024*1024*int(input("Enter vmdisk size(GB) : "))
 
-            print("Please place your cloud-init file in same dir with this script ... ")  
-
-            cl_int_f                                                            = input("Enter cloud-init filename ")
+            print("Please cp(or mv) your cloud-init file in same directory with this nxcli program ... ")  
+            #Get cloud init config from local file
+            cl_int_f                                                            = input("Enter cloud-init filename in cwd: ")
             fd_cl_int_f = open(cl_int_f,"r")
             body["vm_customization_config"]["userdata"]                         = fd_cl_int_f.read()
             fd_cl_int_f.close()
-        
-            status,task_uuid = mycluster.create_vm(body)
-            print ("\n\nServer Response code is: {} and task uuid is {}".format(status,task_uuid["task_uuid"]))
-            print("\n")
-            status, ent_info = mycluster.get_single_ent_info("tasks",task_uuid["task_uuid"])
-            pprint.pprint(ent_info)
-            print("\n") 
+
+            #Check to see if this is bulk vm creation request > 1 ea
+            if num_vm == 1:
+                body["name"] = vm_name
+                body["description"] = vm_description
+                status,task_uuid = mycluster.create_vm(body)
+                print ("\n\nServer Response code is: {} and task uuid is {}".format(status,task_uuid["task_uuid"]))
+                print("\n")
+                status, ent_info = mycluster.get_single_ent_info("tasks",task_uuid["task_uuid"])
+                pprint.pprint(ent_info)
+                print("\n")
+            
+            elif num_vm > 1:
+                for i in range(1,num_vm+1):
+                    body["name"] = vm_name +"-"+str(i)
+                    body["description"] = vm_description +"-"+str(i)
+                    status,task_uuid = mycluster.create_vm(body)
+                    print ("\n\nServer Response code is: {} and task uuid is {}".format(status,task_uuid["task_uuid"]))
+                    print("\n")
+                    status, ent_info = mycluster.get_single_ent_info("tasks",task_uuid["task_uuid"])
+                    pprint.pprint(ent_info)
+                    print("\n")
+            
+            else: print("Oops something went wrong")
 
         elif seLection == str(9):
             print("You've selected to VM power operation\n")
             body = {"transition": str,"uuid": str}
-            body["uuid"] = input("Enter vm uuid for power operation: ")
+
+            # Print all current VMs and get valid VM uuid list from print_all_ent method
+            status, vmUUid = mycluster.print_all_ent("vms")
+            print("\n")
+            body["uuid"] = input("Enter vm uuid for power operation:(type ALL for all user VMs) ")
+            print("CVM won't be affected by OFF operation but Prism Central VM will ")
 
             #Limiting input for power status only 2 available options with itertool
             pwr_stat    = {'ON','OFF'}
             stat_input  = chain(["Enter the new power status of the vm - ON or OFF: "], repeat("Please type correct power status again: "))
             replies     = map(input, stat_input)
             body["transition"] = next(filter(pwr_stat.__contains__, replies))
-            status,task_uuid = mycluster.vm_powerop(body,body["uuid"])
-            print ("\n\nServer Response code is: {} and task uuid is {}".format(status,task_uuid["task_uuid"]))
-            print("\n")
-            status, ent_info = mycluster.get_single_ent_info("tasks",task_uuid["task_uuid"])
-            pprint.pprint(ent_info)
-            print("\n")
+
+            if body["uuid"] == "ALL":
+                #Get all available vm uuid as list
+                status, all_vms= mycluster.print_all_ent("vms")
+                for i in all_vms:
+                    body["uuid"] = i
+                    status,task_uuid = mycluster.vm_powerop(body,body["uuid"])
+                    print ("\n\nServer Response code is: {} and {}".format(status,task_uuid))
+                    print("\n")
+                    status, ent_info = mycluster.get_single_ent_info("tasks",task_uuid["task_uuid"])
+                    pprint.pprint(ent_info)
+                    print("\n")
+                
+            else:    
+                status,task_uuid = mycluster.vm_powerop(body,body["uuid"])
+                print ("\n\nServer Response code is: {} and  {}".format(status,task_uuid))
+                print("\n")
+                status, ent_info = mycluster.get_single_ent_info("tasks",task_uuid["task_uuid"])
+                pprint.pprint(ent_info)
+                print("\n")
 
         elif seLection == str(10):
-            print("You've selected to VM delete operation\n")
-            body = {"uuid": str}
-            
-            # 1. Collect all current vm uuids 
-            status, all_vms = mycluster.get_all_entity_info("vms")
+            print("You've selected to VM DELETE operation\n")
+            confirm = input("Type CONFIRM to proceed delete VM: ")
+            #Get confirm to delete vm 
+            if confirm == "CONFIRM":
+                body = {"uuid": str}
+                # Print all current VMs and get valid VM uuid list from print_all_ent method
+                status, vmUUid = mycluster.print_all_ent("vms")
 
-            # 2. Check the longest VM name size to align print format
-            vmName=[]
-            for i in all_vms["entities"]:
-                vmName.append(i["vmName"])
-            maxfield = len(max(vmName,key=len))
-            
-            # 3. Display all vm name and uuid for user to select VM by uuid
-            for n in all_vms["entities"]:
-                print("VM name: " + n["vmName"].ljust(maxfield)+" uuid: " + n["uuid"].ljust(40)+ "power:"+n["powerState"])
-            print("\n")
-
-            # 4. Creating valid UUid list and compare whether input is valid
-            vmUUid=[]
-            for i in all_vms["entities"]:
-                vmUUid.append(i["uuid"])
-
-            # 5. Get an uuid input as long as it is valid
-            stat_input  = chain(["Enter vm uuid to DELETE operation: "], repeat("Please type correct VM Uuid: "))
-            replies     = map(input, stat_input)
-            body["uuid"] = next(filter(vmUUid.__contains__, replies))
-            status,task_uuid = mycluster.delete_vm(body,body["uuid"])
-            print ("\n\nServer Response code is: {} and task uuid is {}".format(status,task_uuid["task_uuid"]))
-            print("\n")
-            status, ent_info = mycluster.get_single_ent_info("tasks",task_uuid["task_uuid"])
-            pprint.pprint(ent_info)
-            print("\n")
+                # Get an uuid input as long as it is valid
+                stat_input  = chain(["\n\nEnter vm uuid to DELETE operation: "], repeat("Please type correct VM Uuid: "))
+                replies     = map(input, stat_input)
+                body["uuid"] = next(filter(vmUUid.__contains__, replies))
+                status,task_uuid = mycluster.delete_vm(body,body["uuid"])
+                print ("\n\nServer Response code is: {} and task uuid is {}".format(status,task_uuid["task_uuid"]))
+                print("\n")
+                status, ent_info = mycluster.get_single_ent_info("tasks",task_uuid["task_uuid"])
+                pprint.pprint(ent_info)
+                print("\n")
+            else:
+                print("Returning to main menu") 
+                mycluster.EntityMenu()
 
         elif seLection == str(11):
-            print("You've selected to performance data collection operation\n")
-            
+            print("You've selected to performance data collection operation\n")         
             ent_type    = input("type 1 for vm, 2 for host:  ")
             period      = int(input("type period to trace past data (hr) - max 4:  "))
             interval    = int(input("type perfromance data sampling interval(sec) - min 30:  "))
@@ -360,7 +348,52 @@ if __name__ == "__main__":
                 print("Storage Tier: "+ n["storage_tier_name"])
                 print("Disk Size: %5.2f GB " % (float(n["disk_size"])/1024/1024/1024))
                 print("###############################")
+
+        elif seLection == str(13):
+            print("You've selected new cluster setup option..\n")
+            
+            print("1. Please fill in EULA form to accept:...\n")
+            eula={}
+            eula["username"]        = input("please enter username: ")
+            eula["companyName"]     = input("please enter company name: ")
+            eula["jobTitle"]        = input("please enter your job title: ")
+            status,task_uuid = mycluster.post_new_ent("eula",eula)
+            print ("\n\nServer Response code is: {} and task response is {}\n".format(status,task_uuid))
+            
+            print("2. Please fill in pulse option:...\n")
+            pulse={}
+            pulse["emailContactList"]                       = input("please enter contact email list: ")
+            pulse["enable"]                                 = input("please type pulse enable true or false: ")
+            pulse["enableDefaultNutanixEmail"]              = input("Enable Default NutanixEmail? true or false: ")
+            pulse["isPulsePromptNeeded"]                    = "false"
+            status,task_uuid = mycluster.post_new_ent("pulse",pulse)
+            print ("\n\nServer Response code is: {} and task response is {}".format(status,task_uuid))
+        
+            print("3. Please share public ssh-key for cluster ssh access:...\n")
+            sshkey={}
+            sshkey["key"]                                   = input("please copy and paste your public-key - single line: ")
+            sshkey["name"]                                  = input("please type your ssh-key name: ")
+            status,task_uuid = mycluster.post_new_ent("pubkey",sshkey)
+            print ("\n\nServer Response code is: {} and task response is {}\n".format(status,task_uuid))
+            
+            print("3. Please ntp server to set for the cluster :...\n")
+            ntpip={}
+            ntpip["value"]                                   = input("please type ntp ip address: ")
+            status,task_uuid = mycluster.post_new_ent("ntp",ntpip)
+            print ("\n\nServer Response code is: {} and task response is {}\n".format(status,task_uuid))      
+
+            print("4. Please dns server ip to set for the cluster :...\n")
+            dnsip={}    
+            dnsip["value"]                                   = input("please type dns ip address: ")
+            status,task_uuid = mycluster.post_new_ent("dns",dnsip)
+            print ("\n\nServer Response code is: {} and task response is {}\n".format(status,task_uuid))    
+
+            print("5. Please network detail to create :...\n")
+            subnet={}
+            subnet["name"]                                   = input("please type network name: ")
+            subnet["vlanId"]                                 = input("please type network vlan id: ")
+            status,task_uuid = mycluster.post_new_ent("net",subnet)
+            print ("\n\nServer Response code is: {} and task response is {}\n".format(status,task_uuid))        
                    
         else :
-            print("You've selected wrong option")
-            print("Exiting...")           
+            print("You've selected wrong option")        
