@@ -23,8 +23,8 @@ A quick intro, first.  The **nxcli** program can be used for simple nutanix clus
 
 **nxcli** has been provided for devopslish operation something similar awscli or azurecli against nutanix prism element cluster:
 
-#- this requires to have "nxapilib.py" file in same directory as a method library
-#- python3 and various optional python pkgs are required to install prior to execute, you can check from import sentence in source file - or error msg you get :)
+- this requires to have "nxapilib.py" file in same directory as a method library
+- python3 and various optional python pkgs are required to install prior to execute, you can check from import sentence in source file - or error msg you get :)
 
 Usage
 -----
