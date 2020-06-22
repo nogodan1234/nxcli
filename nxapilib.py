@@ -349,12 +349,12 @@ def GetClusterDetail():
         config={}
         config["cluster_name"]      =       input("What is cluster name?: ")    
         config["ip"]                =       input("Prism Element Virtual IP: ")
-        config["username"]          =       input("Prism admin username: ")
+        config["username"]          =       input("Prism admin role username: ")
         raw_passwd                  =       getpass.getpass(prompt="Password for admin user?\n" , stream=None)
         #Encoding passwd 
-        bpasswd                     =       base64.b64encode(raw_passwd.encode("utf-8"))
+        benc_passwd                 =       base64.b64encode(raw_passwd.encode("utf-8"))
         #Convert byte format to string to send json
-        config["password"]          =       bpasswd.decode("utf-8")
+        config["password"]          =       benc_passwd.decode("utf-8")
         with open(cluster_config,'w') as out_file:
             json.dump(config,out_file)
         print("\n %s config file has been created !!\n" %config["cluster_name"])
