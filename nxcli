@@ -37,7 +37,6 @@ import pprint
 from itertools import chain, repeat
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 import json
-import pyperclip as pc
 
 if __name__ == "__main__":
     print(motd)
