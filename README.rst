@@ -12,19 +12,19 @@ Please see the `main <https://github.com/nutanixdev/code-samples/tree/master/pyt
 Code Sample Details
 ...................
 
-A quick intro, first.  The **nxcli** program can be used for simple nutanix cluster operation with Python 3.  The expectation is that users wanting to do nutanix cluster operation without Prism UI access.  For example:
+A quick intro, first.  The **nxcli** program can be used for simple nutanix cluster operation from cli.  The expectation is that users wanting to do nutanix cluster operation without Prism UI access.  For example:
 
-- Get various entity information - cluster,host,vm,image,network,disks,task etc
+- Get various entity information - cluster,host,vm,image,network,disks,task etc from cli
 - Upload image from URL 
-- Create single or multiple VM(s) from disk image with cloud-init 
+- Create single or multiple VM(s) from disk image with cloud-init from cli at once
 - Power on/off all VMs at once(CVMs won't be affected)
-- Delete VM
+- Delete VM 
 - Collect host,vm performance data from arithmos service
 
 **nxcli** has been provided for devopslish operation something similar awscli or azurecli against nutanix prism element cluster:
 
-#- A single batch should not contain no more than 60 individual requests
-#- Additional exception handling should be added before using this in production
+#- this requires to have "nxapilib.py" file in same directory as a method library
+#- python3 and various optional python pkgs are required to install prior to execute, you can check from import sentence in source file - or error msg you get :)
 
 Usage
 -----
@@ -35,14 +35,25 @@ It is strongly recommended to be careful when you do VM delete operation or powe
 
    usage: ./nxcli
 
+    ###############################################
+    What kind of operation do you want?
+    #################### MENU ####################
+    Type 0: Check specific task status
+    Type 1: Cluster info
+    Type 2: Host info
+    Type 3: Vm info
+    Type 4: Image info
+    Type 5: Container info
+    Type 6: Network info
+    Type 7: Upload new image from URL
+    Type 8: Create new VM from disk image with cloud-init(bulk opt)
+    Type 9: VM Power on/off operation(bulk opt)
+    Type 10: Delete VM operation
+    Type 11: Performance data(cpu/mem) for VM or host
+    Type 12: Cluster disk detail info
+    Type 13: New cluster setup - EULA,Pulse,NTP etc
+
 .. code-block:: bash
    if this was the first time executed, it will ask for cluster detail:
-   or it will use saved cluster configuration to communicate 
-
-Example:
-
-.. code-block:: bash
-   this requires to have "nxapilib.py" file in same directory as a method library
-   python3 and various optional python pkgs are required to install prior to execute
-
-.. code-block:: bash
+   or it will use saved cluster configuration to communicate.
+   
