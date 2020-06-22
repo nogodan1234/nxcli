@@ -29,7 +29,7 @@ A quick intro, first.  The **nxcli** program can be used for simple nutanix clus
 Usage
 -----
 
-It is strongly recommended to be careful when you do VM delete operation or power-off operation to prevent undesired outcome in production
+It is strongly recommended to be careful when you do 10. VM delete operation or 9. Power-off operation to prevent undesired outcome in production
 
 .. code-block:: bash
 
