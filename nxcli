@@ -48,7 +48,7 @@ if __name__ == "__main__":
         password = cluster[3]  
 
         mycluster = C.my_api(ip,username,password)
-        seLection = mycluster.EntityMenu()
+        seLection = mycluster.EntityMenu(cluster_name,ip,username)
 
         if seLection == str(0):
             print("You've selected task progress detail....\n")
@@ -264,7 +264,7 @@ if __name__ == "__main__":
                 print("\n")
             else:
                 print("Returning to main menu") 
-                mycluster.EntityMenu()
+                mycluster.EntityMenu(cluster_name,ip,username)
 
         elif seLection == str(11):
             print("You've selected to performance data collection operation\n")         

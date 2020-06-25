@@ -295,11 +295,12 @@ class my_api():
         else: 
             print("wrong entiry parsed")
 
-    def EntityMenu(self):
+    def EntityMenu(self,clustername,ip,username):
         print("\n\n")
-        print("###############################################")
-        print("What kind of operation do you want?")
-        print("#################### MENU #################### ")
+        print('#'*80)
+        print("Be aware you are in {} cluster({}) as {} user\n".format(clustername,ip,username))
+        print("What kind of operation do you want?\n")
+        print('#'*4 + " MENU " + '#'*4 +'\n'  )
         print("Type 0: Check specific task status")
         print("Type 1: Cluster info")
         print("Type 2: Host info")
@@ -313,8 +314,8 @@ class my_api():
         print("Type 10: Delete VM operation")
         print("Type 11: Performance data(cpu/mem) for VM or host")
         print("Type 12: Cluster disk detail info")
-        print("Type 13: New cluster setup - EULA,Pulse,NTP etc")
-        print("\n")
+        print("Type 13: New cluster setup - EULA,Pulse,NTP etc\n")
+        print('#'*80)
         seLection = input()
         return seLection
 
