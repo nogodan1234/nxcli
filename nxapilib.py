@@ -296,11 +296,10 @@ class my_api():
             print("wrong entiry parsed")
 
     def EntityMenu(self,clustername,ip,username):
-        print("\n\n")
         print('#'*80)
-        print("Be aware you are in {} cluster({}) as {} user\n".format(clustername,ip,username))
+        print("Be aware you are in {} cluster({}) as {} user".format(clustername,ip,username))
         print("What kind of operation do you want?\n")
-        print('#'*4 + " MENU " + '#'*4 +'\n'  )
+        print('#'*4 + " MENU " + '#'*4+'\n'  )
         print("Type 0: Check specific task status")
         print("Type 1: Cluster info")
         print("Type 2: Host info")
@@ -314,7 +313,8 @@ class my_api():
         print("Type 10: Delete VM operation")
         print("Type 11: Performance data(cpu/mem) for VM or host")
         print("Type 12: Cluster disk detail info")
-        print("Type 13: New cluster setup - EULA,Pulse,NTP etc\n")
+        print("Type 13: New cluster setup - EULA,Pulse,NTP etc")
+        print("Type q: Exit program \n")
         print('#'*80)
         seLection = input()
         return seLection
@@ -339,7 +339,7 @@ def GetClusterDetail():
     cluster_config = home+"/.nx/config"
         
     if os.path.exists(cluster_config) == False:
-        print("\n\nNo cluster config file found, will create new config file now\n\n")
+        print("\nNo cluster config file found, will create new config file now\n")
         try:
             os.mkdir(path)
         except OSError:
@@ -370,5 +370,5 @@ def GetClusterDetail():
             enc_passwd = config["password"]
             password = base64.b64decode(enc_passwd).decode("utf-8")
             cluster_name = config["cluster_name"]
-        print("\n\nFound {} cluster config file in {}\n\n".format(cluster_name,cluster_config))
+        print("Found {} cluster config file in {}\n".format(cluster_name,cluster_config))
         return (cluster_name,ip,username,password)

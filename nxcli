@@ -393,6 +393,9 @@ if __name__ == "__main__":
             subnet["vlanId"]                                 = input("please type network vlan id: ")
             status,task_uuid = mycluster.post_new_ent("net",subnet)
             print ("\n\nServer Response code is: {} and task response is {}\n".format(status,task_uuid))        
-                   
+        
+        elif seLection == 'q':
+            break
+
         else :
-            print("You've selected wrong option")        
+            print("You've selected wrong option")
