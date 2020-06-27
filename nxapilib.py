@@ -359,7 +359,7 @@ def GetClusterDetail():
         with open(cluster_config,'w') as out_file:
             json.dump(config,out_file)
         print("\n %s config file has been created !!\n" %config["cluster_name"])
-        return(config["cluster_name"],config["ip"],config["username"],config["password"])
+        return(config["cluster_name"],config["ip"],config["username"],raw_passwd)
 
     else :
         print("Reading your config...")
