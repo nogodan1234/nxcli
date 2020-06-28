@@ -207,9 +207,11 @@ class my_api():
             for i in all_ent["entities"]:
                 hostName.append(i["name"])
             maxfield = len(max(hostName,key=len))
+            # 2.5 Sorting the dictionary with name
+            all_ent["entities"] = sorted(all_ent["entities"], key=lambda a:a["name"])
             # 3. Display all host name and uuid for user to select host by uuid
             for n in all_ent["entities"]:
-        	    print("Host name: " + n["name"].ljust(maxfield)+" uuid: " + n["uuid"].rjust(30))
+        	    print("Host name: " + n["name"].ljust(maxfield+2)+" uuid: " + n["uuid"].rjust(30))
             print("\n")
             # 4. Creating valid UUid list and compare whether input is valid
             hostUUid=[]
@@ -225,9 +227,11 @@ class my_api():
             for i in all_ent["entities"]:
                 vmName.append(i["vmName"])
             maxfield = len(max(vmName,key=len)) 
+            # 2.5 Sorting the dictionary with vmName
+            all_ent["entities"] = sorted(all_ent["entities"], key=lambda a:a["vmName"])
             # 3. Display all vm name and uuid for user to select VM by uuid
             for n in all_ent["entities"]:
-                print("VM name: " + n["vmName"].ljust(maxfield)+" uuid: " + n["uuid"].ljust(40)+ "power:"+n["powerState"])
+                print("VM name: " + n["vmName"].ljust(maxfield+2)+" uuid: " + n["uuid"].ljust(40)+ "power:"+n["powerState"])
             # 4. Creating valid UUid list and compare whether input is valid
             vmUUid=[]
             for i in all_ent["entities"]:
@@ -244,9 +248,17 @@ class my_api():
                 imgName.append(i["name"])
             maxfield = len(max(imgName,key=len))
 
+            imgType=[]
+            for i in all_ent["entities"]:
+                imgType.append(str(i.get("image_type")))
+            imgmaxfield = len(max(imgType,key=len))
+
+            # 2.5 Sorting the dictionary with name
+            all_ent["entities"] = sorted(all_ent["entities"], key=lambda a:a["name"])
+
             # 3. Display all img name, uuid, img_type: ISO or disk
             for n in all_ent["entities"]:
-                print("Image name: " + n["name"].ljust(maxfield)+" uuid: " + n["uuid"] +" vm_disk_id: " + str(n.get("vm_disk_id")) + "  image_type: "+ str(n.get("image_type")))
+                print("Image name: " + n["name"].ljust(maxfield+2)+" uuid: " + n["uuid"] +" vm_disk_id: " + str(n.get("vm_disk_id")).ljust(40) + "  image_type: "+ str(n.get("image_type")).ljust(imgmaxfield+2))
             print("\n")
             # 4. Creating valid UUid list and compare whether input is valid
             imgUUid=[]
@@ -262,6 +274,8 @@ class my_api():
             for i in all_ent["entities"]:
                 ctrName.append(i["name"])
             maxfield = len(max(ctrName,key=len))
+            # 2.5 Sorting the dictionary with name
+            all_ent["entities"] = sorted(all_ent["entities"], key=lambda a:a["name"])
             # 3. Display all ctr name, uuid, img_type: ISO or disk
             for n in all_ent["entities"]:
                 print("Container name: " + n["name"].ljust(maxfield)+" storage_container_uuid: " + n["storage_container_uuid"].ljust(40))
@@ -281,6 +295,9 @@ class my_api():
             for i in all_ent["entities"]:
                 netName.append(i["name"])
             maxfield = len(max(netName,key=len))
+
+            # 2.5 Sorting the dictionary with name
+            all_ent["entities"] = sorted(all_ent["entities"], key=lambda a:a["name"])
 
             # 3. Display all ctr name, uuid, img_type: ISO or disk
             for n in all_ent["entities"]:
