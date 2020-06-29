@@ -11,13 +11,13 @@
 import json,sys
 import time
 import requests
-from urllib.parse import quote
+import base64
 import urllib3
 import ipaddress
 import getpass
 import os.path
 from pathlib import Path
-import base64
+from urllib.parse import quote
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # ========== DO NOT CHANGE ANYTHING UNDER THIS LINE =====
@@ -32,22 +32,20 @@ class my_api():
         # Base URL at which v0.8 REST services are hosted in Prism Gateway.
         base_urlv08 = 'https://%s:9440/PrismGateway/services/rest/v0.8/'
         self.base_urlv08 = base_urlv08 % self.ip_addr
-        self.sessionv08 = self.get_server_session(self.username, self.password) 
 
         # Base URL at which v1 REST services are hosted in Prism Gateway.
         base_urlv1 = 'https://%s:9440/PrismGateway/services/rest/v1/'
         self.base_urlv1 = base_urlv1 % self.ip_addr
-        self.sessionv1 = self.get_server_session(self.username, self.password)
 
         # Base URL at which v2 REST services are hosted in Prism Gateway.
         base_urlv2 = 'https://%s:9440/PrismGateway/services/rest/v2.0/'
         self.base_urlv2 = base_urlv2 % self.ip_addr
-        self.sessionv2 = self.get_server_session(self.username, self.password)   
 
         # Base URL at which v3 REST services are hosted in Prism Gateway.
         base_urlv3 = 'https://%s:9440/PrismGateway/services/rest/v3/'
         self.base_urlv3 = base_urlv3 % self.ip_addr
-        self.sessionv3 = self.get_server_session(self.username, self.password)    
+
+        self.session = self.get_server_session(self.username, self.password)    
 
     def get_server_session(self, username, password):
 
@@ -77,8 +75,8 @@ class my_api():
             cluster_url = self.base_urlv2 + "disks/"
         else: 
             print("wrong entiry parsed")
-
-        server_response = self.sessionv2.get(cluster_url)
+        print("API endpoint is: {}\n".format(cluster_url))
+        server_response = self.session.get(cluster_url)
         return server_response.status_code ,json.loads(server_response.text)
 
         # Get entity information.
@@ -100,7 +98,7 @@ class my_api():
         else: 
             print("wrong entiry parsed")
         print(cluster_url)
-        server_response = self.sessionv2.get(cluster_url)
+        server_response = self.session.get(cluster_url)
         return server_response.status_code ,json.loads(server_response.text)
     
     # Get resource stats.
@@ -132,7 +130,7 @@ class my_api():
         # https://10.133.16.50:9440/api/nutanix/v1/vms/3aa1699a-ec41-4037-aade-c73a9d14ed8c/stats/?metrics=hypervisor_cpu_usage_ppm&startTimeInUsecs=1524009660000000&endTimeInUsecs=1524096060000000&interval=30
  
         cluster_url += str(start_time) + "&" + "endTimeInUsecs=" + str(cur_time) + "&interval="+str(interval)
-        server_response = self.sessionv1.get(cluster_url)
+        server_response = self.session.get(cluster_url)
         return server_response.status_code ,json.loads(server_response.text)
 
 
@@ -140,31 +138,31 @@ class my_api():
     def post_new_ent(self,ent,body):
         if (ent == "image"):
             cluster_url = self.base_urlv08 + "images"
-            server_response = self.sessionv08.post(cluster_url,data = json.dumps(body))
+            server_response = self.session.post(cluster_url,data = json.dumps(body))
 
         elif (ent == "eula"):
             cluster_url = self.base_urlv1 + "eulas/accept"
-            server_response = self.sessionv1.post(cluster_url,data = json.dumps(body))
+            server_response = self.session.post(cluster_url,data = json.dumps(body))
 
         elif (ent == "pulse"):
             cluster_url = self.base_urlv1 + "pulse"
-            server_response = self.sessionv1.put(cluster_url,data = json.dumps(body))
+            server_response = self.session.put(cluster_url,data = json.dumps(body))
 
         elif (ent == "pubkey"):
             cluster_url = self.base_urlv2 + "cluster/public_keys"
-            server_response = self.sessionv2.post(cluster_url,data = json.dumps(body))
+            server_response = self.session.post(cluster_url,data = json.dumps(body))
         
         elif (ent == "ntp"):
             cluster_url = self.base_urlv2 + "cluster/ntp_servers"
-            server_response = self.sessionv2.post(cluster_url,data = json.dumps(body))
+            server_response = self.session.post(cluster_url,data = json.dumps(body))
         
         elif (ent == "dns"):
             cluster_url = self.base_urlv1 + "cluster/name_servers"
-            server_response = self.sessionv1.post(cluster_url,data = json.dumps(body))
+            server_response = self.session.post(cluster_url,data = json.dumps(body))
 
         elif (ent == "net"):
             cluster_url = self.base_urlv08 + "networks"
-            server_response = self.sessionv08.post(cluster_url,data = json.dumps(body))
+            server_response = self.session.post(cluster_url,data = json.dumps(body))
         
         else:
             print("Wrong selection")
@@ -175,26 +173,26 @@ class my_api():
     def create_vm(self,body):
         cluster_url = self.base_urlv2 + "vms?include_vm_disk_config=true&include_vm_nic_config=true"
         print(json.dumps(body))
-        server_response = self.sessionv2.post(cluster_url,data = json.dumps(body))
+        server_response = self.session.post(cluster_url,data = json.dumps(body))
         return server_response.status_code ,json.loads(server_response.text)
     
     # Delete VM.
     def delete_vm(self,body,vm_uuid):
         cluster_url = self.base_urlv2 + "vms/" + vm_uuid
-        server_response = self.sessionv2.delete(cluster_url,data = json.dumps(body))
+        server_response = self.session.delete(cluster_url,data = json.dumps(body))
         return server_response.status_code ,json.loads(server_response.text)
     
     # Attach disk to VM.
     def attach_disk(self,body,vm_uuid):
         cluster_url = self.base_urlv2 + "vms/" + vm_uuid + "/disks/attach"
-        server_response = self.sessionv2.post(cluster_url,data = json.dumps(body))
+        server_response = self.session.post(cluster_url,data = json.dumps(body))
         return server_response.status_code ,json.loads(server_response.text)
     
     # VM power operataion
     def vm_powerop(self,body,vm_uuid):
         cluster_url = self.base_urlv2 + "vms/" + vm_uuid + "/set_power_state/"
         print(json.dumps(body))
-        server_response = self.sessionv2.post(cluster_url,data = json.dumps(body))
+        server_response = self.session.post(cluster_url,data = json.dumps(body))
         return server_response.status_code ,json.loads(server_response.text)
 
     # print all ent list with pretty format
@@ -212,7 +210,6 @@ class my_api():
             # 3. Display all host name and uuid for user to select host by uuid
             for n in all_ent["entities"]:
         	    print("Host name: " + n["name"].ljust(maxfield+2)+" uuid: " + n["uuid"].rjust(30))
-            print("\n")
             # 4. Creating valid UUid list and compare whether input is valid
             hostUUid=[]
             for i in all_ent["entities"]:
@@ -259,7 +256,6 @@ class my_api():
             # 3. Display all img name, uuid, img_type: ISO or disk
             for n in all_ent["entities"]:
                 print("Image name: " + n["name"].ljust(maxfield+2)+" uuid: " + n["uuid"] +" vm_disk_id: " + str(n.get("vm_disk_id")).ljust(40) + "  image_type: "+ str(n.get("image_type")).ljust(imgmaxfield+2))
-            print("\n")
             # 4. Creating valid UUid list and compare whether input is valid
             imgUUid=[]
             for i in all_ent["entities"]:
@@ -279,7 +275,6 @@ class my_api():
             # 3. Display all ctr name, uuid, img_type: ISO or disk
             for n in all_ent["entities"]:
                 print("Container name: " + n["name"].ljust(maxfield)+" storage_container_uuid: " + n["storage_container_uuid"].ljust(40))
-            print("\n")
             # 4. Creating valid UUid list and compare whether input is valid
             ctrUUid=[]
             for i in all_ent["entities"]:
@@ -302,7 +297,6 @@ class my_api():
             # 3. Display all ctr name, uuid, img_type: ISO or disk
             for n in all_ent["entities"]:
                 print("Network name: " + n["name"].ljust(maxfield)+" network uuid: " + n["uuid"] + "  vlan: "+ str(n["vlan_id"]).ljust(6)+"  dhcp option:" + str(n["ip_config"]["dhcp_options"]))
-            print("\n")
             # 4. Creating valid UUid list and compare whether input is valid
             netUUid=[]
             for i in all_ent["entities"]:
