@@ -34,6 +34,7 @@ import urllib.request
 import nxapilib as C
 import urllib3
 import pprint
+import time
 from itertools import chain, repeat
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 import json
@@ -360,11 +361,10 @@ if __name__ == "__main__":
             print ("\n\nServer Response code is: {} and task response is {}\n".format(status,task_uuid))
             
             print("2. Please fill in pulse option:...\n")
-            pulse={}
-            pulse["emailContactList"]                       = input("please enter contact email list: ")
+            pulse={"emailContactList":[],"enable":str,"enableDefaultNutanixEmail":str,"isPulsePromptNeeded":"false"}
+            #pulse["emailContactList"]                       = input("please enter contact email list: ")
             pulse["enable"]                                 = input("please type pulse enable true or false: ")
             pulse["enableDefaultNutanixEmail"]              = input("Enable Default NutanixEmail? true or false: ")
-            pulse["isPulsePromptNeeded"]                    = "false"
             status,task_uuid = mycluster.post_new_ent("pulse",pulse)
             print ("\n\nServer Response code is: {} and task response is {}".format(status,task_uuid))
         
@@ -392,8 +392,36 @@ if __name__ == "__main__":
             subnet["name"]                                   = input("please type network name: ")
             subnet["vlanId"]                                 = input("please type network vlan id: ")
             status,task_uuid = mycluster.post_new_ent("net",subnet)
-            print ("\n\nServer Response code is: {} and task response is {}\n".format(status,task_uuid))        
-        
+            print ("\n\nServer Response code is: {} and task response is {}\n".format(status,task_uuid))
+
+        elif seLection == str(14):
+            print("You've selected run new ncc health check option..\n")
+            body = {"sendEmail":False}
+
+            EmailOpt    = {'true','false'}
+            stat_input  = chain(["Do you want to send output to email(true/false)?: "], repeat("Please type correct option again (true/false): "))
+            replies     = map(input, stat_input)
+            body["sendEmail"] = next(filter(EmailOpt.__contains__, replies))
+            status,task_uuid = mycluster.post_new_ent("ncc",body)
+            print ("\n\nServer Response code is: {} and task response is {}\n".format(status,task_uuid))
+            if status == "500":
+                print("Another NCC check is already running")
+                break
+            print("Checking the progress of the task\n")
+            print("Press Ctrl+C when task reach to 100% \n")
+            try:
+                while True:
+                    status, ent_info = mycluster.get_single_ent_info("tasks",task_uuid["taskUuid"])
+                    pprint.pprint(ent_info)
+                    print("\n")
+                    time.sleep(5)
+            except KeyboardInterrupt:
+                pass
+
+            print ("Checking task the ncc output\n")        
+            status,output = mycluster.get_single_ent_info("ncc",task_uuid["taskUuid"])
+            pprint.pprint(output)
+       
         elif seLection == 'q':
             break
 

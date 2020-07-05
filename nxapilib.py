@@ -95,6 +95,8 @@ class my_api():
             cluster_url = self.base_urlv2 + "networks/"+uuid+"/addresses"
         elif (ent == 'tasks'):
             cluster_url = self.base_urlv2 + "tasks/"+uuid
+        elif (ent == 'ncc'):
+            cluster_url = self.base_urlv1 + "ncc/"+uuid
         else: 
             print("wrong entiry parsed")
         print(cluster_url)
@@ -133,7 +135,6 @@ class my_api():
         server_response = self.session.get(cluster_url)
         return server_response.status_code ,json.loads(server_response.text)
 
-
     # Post new ent.
     def post_new_ent(self,ent,body):
         if (ent == "image"):
@@ -163,7 +164,11 @@ class my_api():
         elif (ent == "net"):
             cluster_url = self.base_urlv08 + "networks"
             server_response = self.session.post(cluster_url,data = json.dumps(body))
-        
+
+        elif (ent == 'ncc'):
+            cluster_url = self.base_urlv1 + "ncc/checks"
+            server_response = self.session.post(cluster_url,data = json.dumps(body))
+
         else:
             print("Wrong selection")
         
@@ -325,6 +330,7 @@ class my_api():
         print("Type 11: Performance data(cpu/mem) for VM or host")
         print("Type 12: Cluster disk detail info")
         print("Type 13: New cluster setup - EULA,Pulse,NTP etc")
+        print("Type 14: Run new ncc health checks")
         print("Type q: Exit program \n")
         print('#'*80)
         seLection = input()
