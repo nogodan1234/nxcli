@@ -375,19 +375,20 @@ if __name__ == "__main__":
             status,task_uuid = mycluster.post_new_ent("pubkey",sshkey)
             print ("\n\nServer Response code is: {} and task response is {}\n".format(status,task_uuid))
             
-            print("3. Please ntp server to set for the cluster :...\n")
+            print("3. Please type ntp server to set for the cluster :...\n")
             ntpip={}
             ntpip["value"]                                   = input("please type ntp ip address: ")
             status,task_uuid = mycluster.post_new_ent("ntp",ntpip)
             print ("\n\nServer Response code is: {} and task response is {}\n".format(status,task_uuid))      
 
-            print("4. Please dns server ip to set for the cluster :...\n")
+            print("4. Please typedns server ip to set for the cluster :...\n")
             dnsip={}    
             dnsip["value"]                                   = input("please type dns ip address: ")
             status,task_uuid = mycluster.post_new_ent("dns",dnsip)
             print ("\n\nServer Response code is: {} and task response is {}\n".format(status,task_uuid))    
 
-            print("5. Please network detail to create :...\n")
+            print("5. Please type simple DHCP network detail to create :...\n")
+            print("If you want to create managed network please use main menu15\n")
             subnet={}
             subnet["name"]                                   = input("please type network name: ")
             subnet["vlanId"]                                 = input("please type network vlan id: ")
@@ -421,7 +422,22 @@ if __name__ == "__main__":
             print ("Checking task the ncc output\n")        
             status,output = mycluster.get_single_ent_info("ncc",task_uuid["taskUuid"])
             pprint.pprint(output)
-       
+
+        elif seLection == str(15):
+            print("You've selected to create new managed network..\n")
+            body = {"name":str,"vlanId":str,"ipConfig":{"networkAddress":str,"prefixLength":str,"defaultGateway":"10.2.123.1","pool":[{"range":"10.2.123.119 10.2.123.126"}]}}
+            body["name"]                                   = input("please type managed_network name: ")
+            body["vlanId"]                                 = input("please type network vlan id: ")
+            body["ipConfig"]["networkAddress"]             = input("please type network address: ")
+            body["ipConfig"]["prefixLength"]               = input("please type network prefix number ex)24,22,16: ")
+            body["ipConfig"]["defaultGateway"]             = input("please type network GW: ")
+            ipStart                                        = input("please starting ip address: ")
+            ipEnd                                          = input("please end ip address: ")
+            range =ipStart+' '+ipEnd
+            body["ipConfig"]["pool"][0]["range"]           = range  
+            status,task_uuid = mycluster.post_new_ent("man_net",body)
+            print ("\n\nServer Response code is: {} and task response is {}\n".format(status,task_uuid))
+
         elif seLection == 'q':
             break
 

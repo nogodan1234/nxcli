@@ -169,6 +169,10 @@ class my_api():
             cluster_url = self.base_urlv1 + "ncc/checks"
             server_response = self.session.post(cluster_url,data = json.dumps(body))
 
+        elif (ent == "man_net"):
+            cluster_url = self.base_urlv08 + "networks"
+            server_response = self.session.post(cluster_url,data = json.dumps(body))
+
         else:
             print("Wrong selection")
         
@@ -331,6 +335,7 @@ class my_api():
         print("Type 12: Cluster disk detail info")
         print("Type 13: New cluster setup - EULA,Pulse,NTP etc")
         print("Type 14: Run new ncc health checks")
+        print("Type 15: Create new managed network(ip pool)")
         print("Type q: Exit program \n")
         print('#'*80)
         seLection = input()

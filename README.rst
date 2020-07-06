@@ -35,9 +35,11 @@ It is strongly recommended to be careful when you do 10. VM delete operation or 
 
    usage: ./nxcli
 
-    ###############################################
+    Be aware you are in $YOUR_CLUSTER_NAME cluster($CLUSTR_VIP) as $CLUSTER_USER user
     What kind of operation do you want?
-    #################### MENU ####################
+
+    #### MENU ####
+
     Type 0: Check specific task status
     Type 1: Cluster info
     Type 2: Host info
@@ -52,6 +54,9 @@ It is strongly recommended to be careful when you do 10. VM delete operation or 
     Type 11: Performance data(cpu/mem) for VM or host
     Type 12: Cluster disk detail info
     Type 13: New cluster setup - EULA,Pulse,NTP etc
+    Type 14: Run new ncc health checks
+    Type 15: Create new managed network(ip pool)
+    Type q: Exit program
 
 .. code-block:: bash
    if this was the first time executed, it will ask for cluster detail:
