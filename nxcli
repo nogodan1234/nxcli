@@ -152,7 +152,6 @@ if __name__ == "__main__":
             ctrUuid     = input("Enter container uuid where you want to store this: ")
             url         = input("Enter URL where the image is located: ")
             body = {"name":name,"annotation":annotation,"imageType":valid_image,"imageImportSpec":{"containerUuid":ctrUuid,"url":url}}
-            #body = {"name":"cirros_disk2","annotation":"cirros","imageType":"DISK_IMAGE","imageImportSpec":{"containerUuid":"f8943a0e-83de-41c7-9627-08d2b25c72fb","url":"https://download.cirros-cloud.net/0.5.1/cirros-0.5.1-x86_64-disk.img"}}
             status,task_uuid = mycluster.post_new_ent("image",body)
             print ("\n\nServer Response code is: {} and task uuid is {}".format(status,task_uuid["taskUuid"]))
             print("\n")
@@ -326,10 +325,8 @@ if __name__ == "__main__":
             # 1. Get the UUID of all VMs.
             status, all_disks = mycluster.get_all_entity_info("disk")
 
-            #Create temp list to count SSD disk/HDD disk no.
-            sto_tier=[]
-            for n in all_disks["entities"]:
-                sto_tier.append(n["storage_tier_name"])
+            #Creating temp list for counting disks in each tier
+            sto_tier = [n["storage_tier_name"] for n in all_disks["entities"]]
 
             #Printing total no of disks and SSD / HDD 
             print("## There are total {} disks (SSD: {} HDD: {})".format(len(all_disks['entities']),sto_tier.count("SSD"),sto_tier.count("HDD")))
@@ -350,13 +347,13 @@ if __name__ == "__main__":
                 print("###############################")
 
         elif seLection == str(13):
-            print("You've selected new cluster setup option..\n")
-            
+            print("You've selected new cluster setup option..\n")           
             print("1. Please fill in EULA form to accept:...\n")
             eula={}
             eula["username"]        = input("please enter username: ")
             eula["companyName"]     = input("please enter company name: ")
             eula["jobTitle"]        = input("please enter your job title: ")
+            
             status,task_uuid = mycluster.post_new_ent("eula",eula)
             print ("\n\nServer Response code is: {} and task response is {}\n".format(status,task_uuid))
             
@@ -425,16 +422,17 @@ if __name__ == "__main__":
 
         elif seLection == str(15):
             print("You've selected to create new managed network..\n")
-            body = {"name":str,"vlanId":str,"ipConfig":{"networkAddress":str,"prefixLength":str,"defaultGateway":"10.2.123.1","pool":[{"range":"10.2.123.119 10.2.123.126"}]}}
-            body["name"]                                   = input("please type managed_network name: ")
-            body["vlanId"]                                 = input("please type network vlan id: ")
-            body["ipConfig"]["networkAddress"]             = input("please type network address: ")
-            body["ipConfig"]["prefixLength"]               = input("please type network prefix number ex)24,22,16: ")
-            body["ipConfig"]["defaultGateway"]             = input("please type network GW: ")
-            ipStart                                        = input("please starting ip address: ")
-            ipEnd                                          = input("please end ip address: ")
+            body = {"name":str,"vlanId":str,"ipConfig":{"dhcpOptions":{"domainNameServers":str},"networkAddress":str,"prefixLength":str,"defaultGateway":str,"pool":[{"range":"10.2.123.119 10.2.123.126"}]}}
+            body["name"]                                            = input("please type managed_network name: ")
+            body["vlanId"]                                          = input("please type network vlan id: ")
+            body["ipConfig"]["dhcpOptions"]["domainNameServers"]    = input("please type dns server ip for this net: ")
+            body["ipConfig"]["networkAddress"]                      = input("please type network address: ")
+            body["ipConfig"]["prefixLength"]                        = input("please type network prefix number ex)24,22,16: ")
+            body["ipConfig"]["defaultGateway"]                      = input("please type network GW: ")
+            ipStart                                                 = input("please starting ip address: ")
+            ipEnd                                                   = input("please end ip address: ")
             range =ipStart+' '+ipEnd
-            body["ipConfig"]["pool"][0]["range"]           = range  
+            body["ipConfig"]["pool"][0]["range"]                    = range  
             status,task_uuid = mycluster.post_new_ent("man_net",body)
             print ("\n\nServer Response code is: {} and task response is {}\n".format(status,task_uuid))
 
