@@ -60,5 +60,5 @@ It is strongly recommended to be careful when you do 10. VM delete operation or 
 
 .. code-block:: bash
    if this was the first time executed, it will ask for cluster detail:
-   or it will use saved cluster configuration to communicate.
+   or it will use saved cluster configuration under your home directory( ~/.nx/config)
    

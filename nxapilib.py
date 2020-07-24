@@ -371,7 +371,13 @@ def GetClusterDetail():
 
         config={}
         config["cluster_name"]      =       input("What is cluster name?: ")    
-        config["ip"]                =       input("Prism Element Virtual IP: ")
+        while True:  
+            config["ip"]            =       input("What is Prism Element IP?: ")
+            try : 
+                ipaddress.ip_address(config["ip"])
+                break
+            except ValueError:
+                print ("it doens't look like right ip address format")
         config["username"]          =       input("Prism admin role username: ")
         raw_passwd                  =       getpass.getpass(prompt="Password for admin user?\n" , stream=None)
         #Encoding passwd 
