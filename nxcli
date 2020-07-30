@@ -49,6 +49,11 @@ if __name__ == "__main__":
         password = cluster[3]  
 
         mycluster = C.my_api(ip,username,password)
+        #Check credential with cluster call
+        #print("Verifying ID/Password ... please be patient..")
+        #status, all_cluster = mycluster.get_all_entity_info("cluster")
+
+        #Get seletction from 
         seLection = mycluster.EntityMenu(cluster_name,ip,username)
 
         if seLection == str(0):

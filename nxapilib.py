@@ -16,6 +16,7 @@ import urllib3
 import ipaddress
 import getpass
 import os.path
+import sys
 from pathlib import Path
 from urllib.parse import quote
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -74,10 +75,14 @@ class my_api():
         elif (ent == 'disk'):
             cluster_url = self.base_urlv2 + "disks/"
         else: 
-            print("wrong entiry parsed")
+            print("wrong entiry parsed")    
         print("API endpoint is: {}\n".format(cluster_url))
         server_response = self.session.get(cluster_url)
-        return server_response.status_code ,json.loads(server_response.text)
+        try:
+            return_body = json.loads(server_response.text)
+        except ValueError:
+            sys.exit("Hmm somethig went wrong, is passwd ok? is user unlocked?")
+        return server_response.status_code ,return_body
 
         # Get entity information.
     def get_single_ent_info(self,ent,uuid):
@@ -101,7 +106,11 @@ class my_api():
             print("wrong entiry parsed")
         print(cluster_url)
         server_response = self.session.get(cluster_url)
-        return server_response.status_code ,json.loads(server_response.text)
+        try:
+            return_body = json.loads(server_response.text)
+        except ValueError:
+            sys.exit("Hmm somethig went wrong, is passwd ok? is user unlocked?")
+        return server_response.status_code ,return_body
     
     # Get resource stats.
     def get_resource_stats(self,ent_type,uuid,resource,period,interval):
