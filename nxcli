@@ -4,7 +4,7 @@ motd = f"""
 {'#'*80}
 #  Script Name : nxcli
 #  Script Purpose or Overview 
-#  - Ultamate goal of this program is to use nutanix cluster without UI operation via API
+#  - Ultimate goal of this program is to use nutanix cluster without UI operation via API
 #  - This program is developed with python3 
 #  - This program can be used for collecting/provisiong/deleting/configure nutanix cluster entity
 #  - This program requires nxapilib.py

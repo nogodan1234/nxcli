@@ -137,7 +137,7 @@ class my_api():
         cur_time = cur_time * 1000000
         start_time = start_time * 1000000
 
-        # From: https://www.digitalformula.net/2018/api/vm-performance-stats-with-nutanix-rest-api/
+        # From: https://www.nutanix.dev/2019/09/23/getting-vm-performance-metrics-via-api/
         # https://10.133.16.50:9440/api/nutanix/v1/vms/3aa1699a-ec41-4037-aade-c73a9d14ed8c/stats/?metrics=hypervisor_cpu_usage_ppm&startTimeInUsecs=1524009660000000&endTimeInUsecs=1524096060000000&interval=30
  
         cluster_url += str(start_time) + "&" + "endTimeInUsecs=" + str(cur_time) + "&interval="+str(interval)
