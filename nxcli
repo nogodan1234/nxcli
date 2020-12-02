@@ -35,6 +35,8 @@ import nxapilib as C
 import urllib3
 import pprint
 import time
+import getpass
+import base64
 from itertools import chain, repeat
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 import json
@@ -440,6 +442,18 @@ if __name__ == "__main__":
             body["ipConfig"]["pool"][0]["range"]                    = range  
             status,task_uuid = mycluster.post_new_ent("man_net",body)
             print ("\n\nServer Response code is: {} and task response is {}\n".format(status,task_uuid))
+
+        elif seLection == str(16):
+            print("You've selected change admin password \n")
+            body = {"oldPassword":str,"newPassword":str}
+            body["oldPassword"]                                     = input("please type current admin password: ")
+            body["newPassword"]                                     = input("please type new admin password: ")
+
+            status,task_uuid = mycluster.post_new_ent("passwd",body)
+            print ("\n\nServer Response code is: {} and task response is {}\n".format(status,task_uuid))
+            if status == 200:
+                #update passwd on current config file
+                mycluster.NewPasswd(body["newPassword"])      
 
         elif seLection == 'q':
             break

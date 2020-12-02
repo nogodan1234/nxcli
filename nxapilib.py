@@ -182,6 +182,10 @@ class my_api():
             cluster_url = self.base_urlv08 + "networks"
             server_response = self.session.post(cluster_url,data = json.dumps(body))
 
+        elif (ent == "passwd"):
+            cluster_url = self.base_urlv1 + "users/change_password"
+            server_response = self.session.put(cluster_url,data = json.dumps(body))
+
         else:
             print("Wrong selection")
         
@@ -345,6 +349,7 @@ class my_api():
         print("Type 13: New cluster setup - EULA,Pulse,NTP etc")
         print("Type 14: Run new ncc health checks")
         print("Type 15: Create new managed network(ip pool)")
+        print("Type 16: Change admin user password")
         print("Type q: Exit program \n")
         print('#'*80)
         seLection = input()
@@ -358,6 +363,23 @@ class my_api():
         else:
             print("You typed uuid: %s" %uuid)
             return uuid
+
+    def NewPasswd(self,rawpass):
+        home = str(Path.home())
+        cluster_config = home+"/.nx/config"
+        #Encoding passwd 
+        benc_passwd                 =       base64.b64encode(rawpass.encode("utf-8"))
+        #Convert byte format to string to send json
+        newpass                     =       benc_passwd.decode("utf-8")
+        #load config file from existing one
+        with open(cluster_config,'r') as old_file:
+            config = json.load(old_file)
+        #update passwd
+        config["password"] = newpass 
+        #write passwd to config  
+        with open(cluster_config,'w') as new_file:
+            json.dump(config, new_file)
+        return print("\n %s passwd has been updated !!\n" %config["cluster_name"])
  
 # ========== DO NOT CHANGE ANYTHING ABOVE THIS LINE =====
     
