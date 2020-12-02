@@ -453,7 +453,9 @@ if __name__ == "__main__":
             print ("\n\nServer Response code is: {} and task response is {}\n".format(status,task_uuid))
             if status == 200:
                 #update passwd on current config file
-                mycluster.NewPasswd(body["newPassword"])      
+                mycluster = C.my_api(ip,username,body["newPassword"])
+                mycluster.NewPasswd(body["newPassword"]) 
+                #update current in-use passwd  
 
         elif seLection == 'q':
             break
